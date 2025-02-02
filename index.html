@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Calculator with Health Suggestions</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; }
+        .container { max-width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        h1 { text-align: center; color: #333; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .button { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .button:hover { background-color: #45a049; }
+        .result { margin-top: 20px; font-size: 18px; text-align: center; }
+        .suggestion { font-size: 16px; font-weight: bold; color: #555; margin-top: 10px; line-height: 1.6; }
+        .hidden { display: none; }
+        .loading { text-align: center; font-style: italic; color: #777; } /* Style for loading message */
+        .video-link { margin-top: 10px; color: #0066cc; text-decoration: none; font-size: 14px; display: inline-block; }
+        .video-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div id="loginPage" class="container">
+        <h1>Login</h1>
+        <div class="input-group">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" placeholder="Enter your full name" required>
+        </div>
+        <div class="input-group">
+            <label for="age">Age:</label>
+            <input type="number" id="age" placeholder="Enter your age" required>
+        </div>
+        <div class="input-group">
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weightLogin" placeholder="Enter your weight" required>
+        </div>
+        <div class="input-group">
+            <label for="height">Height (cm):</label>
+            <input type="number" id="heightLogin" placeholder="Enter your height" required>
+        </div>
+        <button class="button" onclick="login()">Login</button>
+        <p id="loginError" style="color: red; text-align: center;" class="hidden">Please fill in all fields.</p>
+    </div>
+
+    <div id="bmiPage" class="container hidden">
+        <h1>Welcome, <span id="userName"></span></h1>
+        <div class="result" id="result"></div>
+        <div class="suggestion" id="healthSuggestion"></div>
+    </div>
+
+    <script>
+        let userName = "";
+        let userAge = 0;
+        let userWeight = 0;
+        let userHeight = 0;
+
+        function login() {
+            userName = document.getElementById("name").value;
+            userAge = parseInt(document.getElementById("age").value);
+            userWeight = parseFloat(document.getElementById("weightLogin").value);
+            userHeight = parseFloat(document.getElementById("heightLogin").value);
+
+            if (!userName || isNaN(userAge) || isNaN(userWeight) || isNaN(userHeight)) {
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            document.getElementById("loginPage").classList.add("hidden");
+            document.getElementById("bmiPage").classList.remove("hidden");
+            document.getElementById("userName").innerText = userName;
+
+            calculateBMI();
+        }
+
+        function calculateBMI() {
+            const weight = userWeight;
+            const height = userHeight;
+
+            if (isNaN(weight) || isNaN(height) || weight <= 0 || height <= 0) {
+                document.getElementById("result").innerHTML = "Please enter valid values.";
+                return;
+            }
+
+            const heightInMeters = height / 100;
+            const bmi = weight / (heightInMeters * heightInMeters);
+            document.getElementById("result").innerHTML = `Your BMI is: ${bmi.toFixed(2)}`;
+
+            const suggestion = getHealthSuggestion(bmi);
+            document.getElementById("healthSuggestion").innerHTML = suggestion;
+        }
+
+        function getHealthSuggestion(bmi) {
+            let suggestion = '';
+            let videoLink = '';
+
+            if (bmi < 18.5) {
+                suggestion = `
+                    <strong>You are underweight.</strong><br>
+                    It's important to address underweight as it can lead to malnutrition, weak immune system, and other health issues. To gain weight healthily, focus on consuming a well-balanced diet rich in healthy fats, proteins, and whole grains. Try incorporating nutrient-dense foods and increase your calorie intake through whole foods.<br><br>
+                    <strong>Action steps:</strong><br>
+                    - Consume calorie-dense but nutritious foods like avocados, nuts, and seeds.<br>
+                    - Include more healthy protein in your meals: chicken, fish, legumes.<br>
+                    - Try resistance training to build muscle mass.<br><br>
+                    <a class="video-link" href="https://youtu.be/1Q6ij1qSrrw?si=YXlCFqp1zGW-OkSO" target="_blank">Watch: Tips for Healthy Weight Gain</a>`;
+                videoLink = "https://youtu.be/1Q6ij1qSrrw?si=YXlCFqp1zGW-OkSO"; // Video link suggestion
+            } 
+            else if (bmi >= 18.5 && bmi < 24.9) {
+                suggestion = `
+                    <strong>You have a healthy weight.</strong><br>
+                    Congratulations! You are within the healthy BMI range. Maintaining a balanced diet along with regular exercise can help you sustain this healthy weight. Keep nourishing your body with essential vitamins and minerals and stay active to preserve your overall health.<br><br>
+                    <strong>Action steps:</strong><br>
+                    - Continue with regular physical activity like jogging, cycling, or yoga.<br>
+                    - Keep eating balanced meals that include whole grains, vegetables, and lean proteins.<br>
+                    - Stay hydrated and get enough sleep to help your body regenerate.<br><br>
+                    <a class="video-link" href="https://youtu.be/OkNbacmwNp4?si=MN_OaXKUdq0bCPms" target="_blank">Watch: How to Maintain a Healthy Lifestyle</a>`;
+                videoLink = "https://youtu.be/OkNbacmwNp4?si=MN_OaXKUdq0bCPms"; // Video link suggestion
+            } 
+            else if (bmi >= 25 && bmi < 29.9) {
+                suggestion = `
+                    <strong>You are overweight.</strong><br>
+                    Being overweight can increase the risk of several health conditions like diabetes, heart disease, and hypertension. It's time to take control and adopt healthy habits to get back to a healthier weight. A combination of healthy eating and physical activity can help you manage your weight effectively.<br><br>
+                    <strong>Action steps:</strong><br>
+                    - Start by incorporating more fruits and vegetables into your meals.<br>
+                    - Try aerobic exercises like walking, swimming, or cycling.<br>
+                    - Reduce your intake of sugary drinks and processed foods.<br><br>
+                    <a class="video-link" href="https://youtu.be/q42n27oCOUM?si=j9CsmLqGAXWzSqGT" target="_blank">Watch: Overcoming Overweight with Simple Exercise Routines</a>`;
+                videoLink = "https://youtu.be/q42n27oCOUM?si=j9CsmLqGAXWzSqGT"; // Video link suggestion
+            } 
+            else {
+                suggestion = `
+                    <strong>You are obese.</strong><br>
+                    Obesity significantly raises the risk of serious health problems such as cardiovascular diseases, diabetes, and even certain cancers. It's crucial to take proactive steps towards a healthier lifestyle. Consulting a healthcare professional is important to create a personalized plan to achieve weight loss in a safe and effective manner.<br><br>
+                    <strong>Action steps:</strong><br>
+                    - Start with small, manageable changes like reducing portion sizes and avoiding high-calorie snacks.<br>
+                    - Consider joining a fitness program or working with a personal trainer.<br>
+                    - Make sure to focus on both diet and exercise for long-term success.<br><br>
+                    <a class="video-link" href="https://youtu.be/3h1nHxgsNyc?si=bc-UWfEsMzCOzuz1" target="_blank">Watch: How to Start Your Weight Loss Journey</a>`;
+                videoLink = "https://youtu.be/3h1nHxgsNyc?si=bc-UWfEsMzCOzuz1"; // Video link suggestion
+            }
+
+            return suggestion;
+        }
+    </script>
+
+</body>
+</html>
